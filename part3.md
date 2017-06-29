@@ -1,0 +1,31 @@
+---
+title: 详解JavaScript存储_离线缓存（application cache）
+date: 2016-10-24 15:24:38
+tags: Skill
+---
+* 兼容性：   ie 9 ＋
+* 主要应用：常用于静态资源缓存
+* 存储大小：5m
+* 缺陷：      由于原理上，application cache是把manifest上的资源一起下载下来，所以manifest里的内容不宜过多，数据量不宜过大；由于manifest的解析通常以页面刷新为触发点，且更新的缓存不会立即被使用，所以缓存的资源应以静态资源、更新频率比较低的资源为主。另外要做好对manifest文件的管理，由于清单内文件不可访问或manifest更新不及时造成的一些问题。
+### 使用方法：
+1. navigator.online  检测是否在线
+2. 浏览器向服务端发出请求， html标签中这样写: <html manifest=”demo.appcache” >;
+这样浏览器就会向请求其它资源一样向服务器请求这个名为 test.manifest文件了。
+在服务器端添加 mime-type text/cache-manifest
+3. 配置test.manifest 文件
+ 1. CACHE MANIFEST – 在此标题下列出的文件将在首次下载后进行缓存
+ 2. NETWORK – 在此标题下列出的文件需要与服务器的连接，且不会被缓存
+ 3. FALLBACK – 在此标题下列出的文件规定当页面无法访问时的回退页面(比如 404 页面)
+
+更新：只有server端的manifest文件改变，浏览器才会重新拉取离线数据，需要页面再次刷新（2次刷新才能获取新资源），更新是全局性的，无法单独更新某个文件。
+```js
+CACHE MANIFEST
+# versin 1.0.0      //版本，若修改，则重新拉取
+CACHE:   
+  /theme.css   //缓存该文件
+  /main.js
+NETWORK:      //不会被缓存的文件
+  login.jsp
+FALLBACK:      //回退页面
+  /html/ /offline.html
+```
